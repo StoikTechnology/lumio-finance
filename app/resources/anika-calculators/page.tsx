@@ -1,0 +1,4 @@
+import {AnikaCalculators} from '@/components/lumio/anika-calculators';
+import type {Scenario} from '@/lib/calculation';
+export const metadata={title:'Anika Calculators | Resource Hub',description:'Repayment calculator, borrowing power and Loan Optimiser together in Lumio’s Resource Hub, with Anika explaining your scenarios.'};
+export default async function AnikaCalculatorHub({searchParams}:{searchParams:Promise<Record<string,string|undefined>>}){const q=await searchParams;const scenario:Partial<Scenario>={};for(const[param,key,min,max]of [['amount','price',1000,1000000],['rate','rate',0,40],['years','years',1,7],['fees','fees',0,20000],['ongoing','ongoing',0,1000]] as const){const value=Number(q[param]);if(q[param]&&Number.isFinite(value)&&value>=min&&value<=max&&(key!=='years'||Number.isInteger(value)))scenario[key]=value;}return <AnikaCalculators initialTool={q.tool} product={q.product} purpose={q.purpose} scenario={scenario}/>}

@@ -1,0 +1,1 @@
+export default function Loading(){return <section className="route-loading" role="status" aria-label="Loading page"><span className="sr-only">Loading your next page</span><div className="loading-title"/><div className="loading-line"/><div className="loading-line short"/><div className="loading-panels"><div/><div/></div></section>}

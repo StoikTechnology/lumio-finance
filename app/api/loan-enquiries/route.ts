@@ -1,0 +1,18 @@
+import {isAllowedContactRequest} from "@/lib/contact-request";
+export const runtime="nodejs";
+import {loanEnquirySchema} from '@/lib/loan-enquiry';
+import {products} from '@/lib/content';
+import {POST as saveContact} from '@/app/api/contact/route';
+export const dynamic='force-dynamic';
+export async function POST(req:Request){
+ const reply=(error:string,status:number)=>Response.json({error},{status,headers:{'Cache-Control':'no-store'}});
+ if(!isAllowedContactRequest(req))return reply('Request not permitted.',403);
+ let raw;try{const text=await req.text();if(Buffer.byteLength(text,"utf8")>40000)return reply('Enquiry too large.',413);raw=JSON.parse(text)}catch{return reply('Invalid enquiry.',400)}
+ const parsed=loanEnquirySchema.safeParse(raw);if(!parsed.success)return reply(parsed.error.issues[0]?.message||'Please check your enquiry details.',400);
+ const d=parsed.data;const product=products.find(p=>p.slug===d.product)!.name;
+ let detailLines:string[]=[];if(d.borrowerType==='Consumer'){ const detail=d.details;const v=detail.vehicle;
+ detailLines=['Relationship: '+detail.relationship,'Enquiry: '+detail.applicationType,'Employment: '+detail.employment,'Living: '+detail.living,'Citizenship: '+detail.citizenship,'Tax residency: '+(detail.taxResidency||'Not confirmed'),'Monthly rent / contribution (not mortgage): $'+(detail.housingMonthly||'Not provided'),'Other monthly living expenses: $'+detail.livingExpenses,'Assets: property $'+detail.assets.property+' | vehicles $'+detail.assets.vehicles+' | savings/investments $'+detail.assets.savings+' | other $'+detail.assets.other,'Liabilities: balances $'+detail.liabilities.balance+' | monthly repayments $'+detail.liabilities.monthlyRepayments+' | card limits $'+detail.liabilities.creditLimits,...detail.incomes.map((income,i)=>'Income '+(i+1)+': '+income.source+' | gross $'+income.gross+' | '+income.frequency+' | tax '+(income.taxTreatment||'Not confirmed')),...(detail.liabilities.items||[]).map((l,i)=>'Liability '+(i+1)+': '+l.type+' | balance $'+l.balance+' | monthly repayment $'+l.repayment+' | limit $'+l.limit),...(v?['Vehicle: '+v.condition+' | '+v.seller,'Deposit: $'+v.deposit,'Trade in: '+v.tradeIn,...(v.tradeIn==='Yes'?['Trade rego: '+v.rego+' ('+v.regoState+')','Estimated trade value: $'+v.tradeAmount]:[])]:[])];
+}else{const b=d.business;detailLines=['Business finance: '+b.financeType,'Business name: '+b.name,'Business website: '+(b.website||'Not provided'),'Structure: '+b.structure,'ABN: '+b.abn,'ACN: '+(b.acn||'Not applicable'),...(b.structure==='Trust'?['Trust type: '+b.trustType,'Trustee: '+b.trusteeName+' | '+b.trusteeType]:[]),...b.directors.map((person,i)=>'Owner/director '+(i+1)+': '+person.name+' | '+person.role),'Annual turnover: $'+b.annualTurnover,'Monthly business expenses: $'+b.monthlyExpenses,'Business assets: $'+b.assets,'Business debt balances: $'+b.liabilities,'Monthly business debt repayments: $'+b.monthlyRepayments,'Authority to provide business information confirmed.'];}
+ const notes=['LOAN ENQUIRY · ANALYST FOLLOW UP','Product: '+product,'Borrower type: '+d.borrowerType,'Requested term: '+d.term+' years','Amount: '+(d.amount||'To discuss'),'Purpose: '+(d.purpose||'To discuss'),...detailLines,'Member notes: '+(d.notes||'None provided'),'Dashboard is offline. Member requests contact to explore options.'].join('\n');
+ return saveContact(new Request(new URL('/api/contact',req.url),{method:'POST',headers:req.headers,body:JSON.stringify({id:d.id,fullName:d.fullName,mobile:d.mobile,email:d.email,notes,enquiryType:d.borrowerType==='Consumer'?'consumer-loan':'commercial-loan',consent:d.consent,website:d.website})}));
+}

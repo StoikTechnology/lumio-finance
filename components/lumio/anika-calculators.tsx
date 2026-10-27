@@ -1,0 +1,10 @@
+'use client';
+import {useState} from 'react';
+import {Calculator as CalculatorIcon,Wallet,ChartNoAxesCombined,ArrowLeft} from 'lucide-react';
+import {Calculator} from './calculator';
+import {BorrowingPower} from './borrowing-power';
+import {LoanOptimiser} from './loan-optimiser';
+import {AnikaLogo} from './anika-logo';
+import type {Scenario} from '@/lib/calculation';
+const tools=[{key:'repayments',icon:CalculatorIcon,title:'Repayment calculator',description:'Explore regular repayments, fees and the total cost.'},{key:'borrowing-power',icon:Wallet,title:'Borrowing power',description:'See what your entered budget could support.'},{key:'loan-optimiser',icon:ChartNoAxesCombined,title:'Loan Optimiser',description:'Understand your monthly financial picture.'}];
+export function AnikaCalculators({initialTool='repayments',product,purpose,scenario}:{initialTool?:string,product?:string,purpose?:string,scenario?:Partial<Scenario>}){const[active,setActive]=useState(tools.some(t=>t.key===initialTool)?initialTool:'repayments');return <><section className="anika-calculator-hub"><a href="/resources" className="calculator-hub-back"><ArrowLeft size={16}/>Resource Hub</a><div className="anika-brand-line"><AnikaLogo/><span>ANIKA CALCULATORS</span></div><h1>Your numbers.<br/><em>A little more clarity.</em></h1><p>All your planning tools in one place. Explore repayments, estimate borrowing power or understand your monthly position, with Anika explaining the numbers.</p><div className="calculator-hub-tabs" role="tablist" aria-label="Anika calculators">{tools.map(t=><button type="button" key={t.key} id={'tab-'+t.key} role="tab" aria-selected={active===t.key} aria-controls="anika-tool-panel" onClick={()=>setActive(t.key)}><t.icon size={25}/><div><b>{t.title}</b><span>{t.description}</span></div></button>)}</div></section><div id="anika-tool-panel" role="tabpanel" aria-labelledby={'tab-'+active} tabIndex={0}>{active==='repayments'?<Calculator initialProduct={product} initialPurpose={purpose} initialScenario={scenario}/>:active==='borrowing-power'?<BorrowingPower/>:<LoanOptimiser/>}</div></>}

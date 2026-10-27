@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1791350233986,
+      "tag": "0000_pale_moira_mactaggert",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1791375256044,
+      "tag": "0001_clear_lorna_dane",
+      "breakpoints": true
+    }
+  ]
+}

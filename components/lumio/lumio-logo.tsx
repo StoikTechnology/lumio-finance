@@ -1,0 +1,2 @@
+// Original logo artwork extracted from the supplied Lumio Finance brand guideline.
+export function LumioLogo({compact=false,tone='light'}:{compact?:boolean,tone?:'light'|'dark'}){const dark=tone==='dark';return <span className={'lumio-wordmark'+(compact?' compact':'')} role="img" aria-label="Lumio Finance"><img src={dark?'/media/lumio-finance-dark-f79a643067.webp':'/media/lumio-finance-light-e4a59ae526.webp'} alt="" width={dark?409:401} height={dark?140:143} aria-hidden="true" decoding="async"/></span>}

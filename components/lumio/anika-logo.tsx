@@ -1,0 +1,1 @@
+export function AnikaLogo({className='',decorative=false}:{className?:string,decorative?:boolean}){return <img className={'anika-logo '+className} src="/media/anika-logo-192-9b89597ba6.webp" width={48} height={48} alt={decorative?'':'Anika AI'} aria-hidden={decorative?true:undefined} loading="lazy" decoding="async"/>}
